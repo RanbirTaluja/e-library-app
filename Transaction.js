@@ -35,8 +35,8 @@ export default class TransactionScreen extends Component {
 	constructor(props) {
 		super(props);
 		this.state = {
-			bookId: '',
-			studentId: '',
+			bookId: 'BSC001',
+			studentId: 'STG001',
 			domState: 'normal',
 			hasCameraPermissions: null,
 			scanned: false,
@@ -76,6 +76,7 @@ export default class TransactionScreen extends Component {
 		}
 	};
 
+	//bp
 	handleTransaction = async () => {
 		var { bookId, studentId } = this.state;
 		await this.getBookDetails(bookId);
@@ -86,8 +87,8 @@ export default class TransactionScreen extends Component {
 		if (!transactionType) {
 			this.setState({ bookId: '', studentId: '' });
 			// For Android users only
-			 ToastAndroid.show("The book doesn't exist in the library database!", ToastAndroid.SHORT);
-			//Alert.alert("The book doesn't exist in the library database!");
+			// ToastAndroid.show("The book doesn't exist in the library database!", ToastAndroid.SHORT);
+			Alert.alert("The book doesn't exist in the library database!");
 		} else if (transactionType === 'issue') {
 			var isEligible = await this.checkStudentEligibilityForBookIssue(
 				studentId
@@ -98,8 +99,8 @@ export default class TransactionScreen extends Component {
 				this.initiateBookIssue(bookId, studentId, bookName, studentName);
 			}
 			// For Android users only
-			 ToastAndroid.show("Book issued to the student!", ToastAndroid.SHORT);
-			//Alert.alert('Book issued to the student!');
+			// ToastAndroid.show("Book issued to the student!", ToastAndroid.SHORT);
+			Alert.alert('Book issued to the student!');
 		} else {
 			var isEligible = await this.checkStudentEligibilityForBookReturn(
 				bookId,
@@ -118,14 +119,15 @@ export default class TransactionScreen extends Component {
 
 	getBookDetails = async (bookId) => {
 		bookId = bookId.trim();
+
 		let dbQuery = query(
 			collection(db, 'books'),
 			where('book_id', '==', bookId)
 		);
 
-		let querySnapShot = await getDocs(dbQuery);
+		let bookRef = await getDocs(dbQuery);
 
-		querySnapShot.forEach((doc) => {
+		bookRef.forEach((doc) => {
 			this.setState({
 				bookName: doc.data().book_details.book_name,
 			});
@@ -134,14 +136,14 @@ export default class TransactionScreen extends Component {
 
 	getStudentDetails = async (studentId) => {
 		studentId = studentId.trim();
-
 		let dbQuery = query(
 			collection(db, 'students'),
 			where('student_id', '==', studentId)
 		);
 
-		let querySnapShot = await getDocs(dbQuery);
-		querySnapShot.forEach((doc) => {
+		let studentRef = await getDocs(dbQuery);
+
+		studentRef.forEach((doc) => {
 			this.setState({
 				studentName: doc.data().student_details.student_name,
 			});
@@ -171,39 +173,10 @@ export default class TransactionScreen extends Component {
 	};
 
 	checkStudentEligibilityForBookIssue = async (studentId) => {
-		let dbQuery = query(
-			collection(db, 'students'),
-			where('student_id', '==', studentId)
-		);
-
-		let studentRef = await getDocs(dbQuery);
-
-		var isStudentEligible = '';
-		if (studentRef.docs.length == 0) {
-			this.setState({
-				bookId: '',
-				studentId: '',
-			});
-			isStudentEligible = false;
-			Alert.alert("The student id doesn't exist in the database!");
-		} else {
-			studentRef.forEach((doc) => {
-				if (doc.data().number_of_books_issued < 2) {
-					isStudentEligible = true;
-				} else {
-					isStudentEligible = false;
-					Alert.alert('The student has already issued 2 books!');
-					this.setState({
-						bookId: '',
-						studentId: '',
-					});
-				}
-			});
-		}
-
-		return isStudentEligible;
+		console.log(studentId);
 	};
 
+	//BP
 	checkStudentEligibilityForBookReturn = async (bookId, studentId) => {
 		let dbQuery = query(
 			collection(db, 'transactions'),
